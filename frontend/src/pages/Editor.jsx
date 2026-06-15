@@ -12,7 +12,8 @@ const Editor = () => {
   const { creativeId } = useParams()
   const navigate = useNavigate()
   const canvasRef = useRef(null)
-  const selectedElementRef = useRef(null)
+  const layerRefs = useRef({})
+  const [moveableTarget, setMoveableTarget] = useState(null)
 
   const [creative, setCreative] = useState(null)
   const [layers, setLayers] = useState([])
@@ -111,6 +112,18 @@ const Editor = () => {
 
   const selectedLayer = layers.find(l => l.id === selectedLayerId)
 
+  useEffect(() => {
+    if (selectedLayerId && layerRefs.current[selectedLayerId]) {
+      setMoveableTarget(layerRefs.current[selectedLayerId])
+    } else {
+      setMoveableTarget(null)
+    }
+  }, [selectedLayerId, layers])
+
+  const handlePreview = () => {
+    window.open(`/preview/${creativeId}`, '_blank')
+  }
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -133,7 +146,7 @@ const Editor = () => {
 
   return (
     <div className="flex flex-col h-full -m-6">
-      <Toolbar onAddTextLayer={handleAddTextLayer} onAddImageLayer={handleAddImageLayer} onSave={handleSave} isSaving={isSaving} />
+      <Toolbar onAddTextLayer={handleAddTextLayer} onAddImageLayer={handleAddImageLayer} onPreview={handlePreview} onSave={handleSave} isSaving={isSaving} />
       {error && <div className="mx-4 mt-4 p-3 bg-red-100 border border-red-300 rounded text-red-700 text-sm">{error}</div>}
       <div className="flex flex-1 overflow-hidden">
         <LayerPanel layers={layers} selectedLayerId={selectedLayerId} onSelectLayer={setSelectedLayerId} onMoveLayer={handleMoveLayer} onDeleteLayer={handleDeleteLayer} />
@@ -149,14 +162,14 @@ const Editor = () => {
                 const animationClass = layer.animation && layer.animation !== 'none' ? `animate-${layer.animation}` : ''
                 return (
                   <div
-                    key={`${layer.id}-${layer.animation || 'none'}`}
-                    ref={el => { if (selectedLayerId === layer.id) selectedElementRef.current = el }}
+                    key={layer.id}
+                    ref={el => { layerRefs.current[layer.id] = el }}
                     onClick={(e) => { e.stopPropagation(); setSelectedLayerId(layer.id) }}
-                    className={`absolute cursor-move ${animationClass} ${selectedLayerId === layer.id ? 'ring-2 ring-primary-500' : ''}`}
+                    className={`absolute cursor-move ${animationClass} ${selectedLayerId === layer.id ? 'ring-2 ring-primary-500 ring-offset-0' : ''}`}
                     style={{
                       left: layer.x, top: layer.y, width: layer.width, height: layer.height,
                       zIndex: layer.zIndex, backgroundColor: layer.styles?.backgroundColor || 'transparent',
-                      opacity: layer.styles?.opacity || 1, display: 'flex', alignItems: 'center',
+                      opacity: layer.styles?.opacity ?? 1, display: 'flex', alignItems: 'center',
                       justifyContent: layer.type === 'text' ? layer.styles?.textAlign || 'left' : 'center'
                     }}
                   >
@@ -177,9 +190,9 @@ const Editor = () => {
                   </div>
                 )
               })}
-              {selectedLayer && selectedElementRef.current && (
+              {selectedLayer && moveableTarget && (
                 <Moveable
-                  target={selectedElementRef.current}
+                  target={moveableTarget}
                   draggable={true}
                   resizable={true}
                   bounds={{ left: 0, top: 0, right: creative.canvas.width, bottom: creative.canvas.height }}

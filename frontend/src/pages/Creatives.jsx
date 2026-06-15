@@ -89,13 +89,27 @@ const Creatives = () => {
                       <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded">{creative.canvas.width} x {creative.canvas.height}</span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(creative.createdAt)}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
-                      <Link to={`/editor/${creative._id}`} className="text-primary-600 hover:text-primary-900">Open</Link>
-                      <Link to={`/preview/${creative._id}`} target="_blank" className="text-green-600 hover:text-green-900">Preview</Link>
-                      <Link to={`/analytics/${creative._id}`} className="text-purple-600 hover:text-purple-900">Analytics</Link>
-                      <button onClick={() => exportCreative(creative._id)} className="text-orange-600 hover:text-orange-900">Export HTML</button>
-                      <button onClick={() => handleEdit(creative)} className="text-gray-600 hover:text-gray-900">Rename</button>
-                      <button onClick={() => handleDelete(creative)} className="text-red-600 hover:text-red-900">Delete</button>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-2 justify-end">
+                        <Link to={`/editor/${creative._id}`} title="Open" className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-50 text-blue-600 border border-blue-100 transition-all duration-200 hover:scale-110 hover:shadow-md">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                        </Link>
+                        <Link to={`/preview/${creative._id}`} target="_blank" title="Preview" className="w-10 h-10 rounded-xl flex items-center justify-center bg-green-50 text-green-600 border border-green-100 transition-all duration-200 hover:scale-110 hover:shadow-md">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                        </Link>
+                        <Link to={`/analytics/${creative._id}`} title="Analytics" className="w-10 h-10 rounded-xl flex items-center justify-center bg-purple-50 text-purple-600 border border-purple-100 transition-all duration-200 hover:scale-110 hover:shadow-md">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                        </Link>
+                        <button onClick={() => exportCreative(creative._id)} title="Export HTML" className="w-10 h-10 rounded-xl flex items-center justify-center bg-orange-50 text-orange-600 border border-orange-100 transition-all duration-200 hover:scale-110 hover:shadow-md">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                        </button>
+                        <button onClick={() => handleEdit(creative)} title="Rename" className="w-10 h-10 rounded-xl flex items-center justify-center bg-gray-50 text-gray-600 border border-gray-100 transition-all duration-200 hover:scale-110 hover:shadow-md">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                        </button>
+                        <button onClick={() => handleDelete(creative)} title="Delete" className="w-10 h-10 rounded-xl flex items-center justify-center bg-red-50 text-red-600 border border-red-100 transition-all duration-200 hover:scale-110 hover:shadow-md">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
