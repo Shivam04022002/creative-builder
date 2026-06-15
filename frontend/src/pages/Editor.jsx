@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import Moveable from 'react-moveable'
+import { DndContext, PointerSensor, useSensor, useSensors, closestCenter } from '@dnd-kit/core'
+import { arrayMove } from '@dnd-kit/sortable'
 import { getCreativeById, updateCreative } from '../services/creativeService.js'
 import Toolbar from '../components/editor/Toolbar.jsx'
 import LayerPanel from '../components/editor/LayerPanel.jsx'
@@ -78,29 +80,27 @@ const Editor = () => {
     setLayers(prev => prev.map(layer => layer.id === layerId ? { ...layer, ...updates } : layer))
   }, [])
 
-  const handleMoveLayer = useCallback((layerId, direction) => {
-    setLayers(prev => {
-      const index = prev.findIndex(l => l.id === layerId)
-      if (index === -1) return prev
-      const newLayers = [...prev]
-      const layer = newLayers[index]
-      if (direction === 'up' && index < newLayers.length - 1) {
-        const next = newLayers[index + 1]
-        const tmp = layer.zIndex; layer.zIndex = next.zIndex; next.zIndex = tmp
-        newLayers[index] = next; newLayers[index + 1] = layer
-      } else if (direction === 'down' && index > 0) {
-        const prev2 = newLayers[index - 1]
-        const tmp = layer.zIndex; layer.zIndex = prev2.zIndex; prev2.zIndex = tmp
-        newLayers[index] = prev2; newLayers[index - 1] = layer
-      }
-      return newLayers
-    })
-  }, [])
 
   const handleDeleteLayer = useCallback((layerId) => {
     setLayers(prev => prev.filter(l => l.id !== layerId))
     if (selectedLayerId === layerId) setSelectedLayerId(null)
   }, [selectedLayerId])
+
+  const handleDragEnd = useCallback((event) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    setLayers(prev => {
+      const reversed = [...prev].reverse()
+      const oldIndex = reversed.findIndex(l => l.id === active.id)
+      const newIndex = reversed.findIndex(l => l.id === over.id)
+      const reordered = arrayMove(reversed, oldIndex, newIndex)
+      return reordered.reverse().map((layer, i) => ({ ...layer, zIndex: i + 1 }))
+    })
+  }, [])
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+  )
 
   const updateLayerPosition = useCallback((layerId, x, y) => {
     setLayers(prev => prev.map(l => l.id === layerId ? { ...l, x: Math.round(x), y: Math.round(y) } : l))
@@ -149,7 +149,9 @@ const Editor = () => {
       <Toolbar onAddTextLayer={handleAddTextLayer} onAddImageLayer={handleAddImageLayer} onPreview={handlePreview} onSave={handleSave} isSaving={isSaving} />
       {error && <div className="mx-4 mt-4 p-3 bg-red-100 border border-red-300 rounded text-red-700 text-sm">{error}</div>}
       <div className="flex flex-1 overflow-hidden">
-        <LayerPanel layers={layers} selectedLayerId={selectedLayerId} onSelectLayer={setSelectedLayerId} onMoveLayer={handleMoveLayer} onDeleteLayer={handleDeleteLayer} />
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <LayerPanel layers={layers} selectedLayerId={selectedLayerId} onSelectLayer={setSelectedLayerId} onDeleteLayer={handleDeleteLayer} />
+        </DndContext>
         <div className="flex-1 bg-gray-100 overflow-auto p-8 flex items-center justify-center">
           {creative && (
             <div
