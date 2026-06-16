@@ -81,8 +81,13 @@ const Preview = () => {
                 <span style={{ color: layer.styles?.color || '#000000', fontSize: `${layer.styles?.fontSize || 16}px`, fontWeight: layer.styles?.fontWeight || 'normal' }}>
                   {layer.text}
                 </span>
-              ) : layer.imageUrl ? (
-                <img src={layer.imageUrl} alt={layer.name} className="w-full h-full object-contain" draggable={false} />
+              ) : (layer.imageUrl || layer.src || layer.url) ? (
+                <img
+                  src={layer.imageUrl || layer.src || layer.url}
+                  alt={layer.name}
+                  className="w-full h-full object-contain"
+                  draggable={false}
+                />
               ) : (
                 <div className="flex flex-col items-center text-gray-400">
                   <svg className="w-8 h-8 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
